@@ -68,6 +68,16 @@ def summarise(rows):
     correct = sum(r["analyst_correct"] for r in rows)
     print(f"  Analyst's own accuracy:        {correct}/{len(rows)} ({correct / len(rows):.0%})")
 
+    # Reliance by displayed confidence level: did the analyst follow the AI more
+    # as the shown number went up, and was the AI actually right that often?
+    print("\n  By displayed confidence (followed AI / AI actually right):")
+    for level in sorted({r["confidence_shown"] for r in rows}, reverse=True):
+        group = [r for r in rows if r["confidence_shown"] == level]
+        followed = sum(r["followed_ai"] for r in group)
+        ai_right = sum(r["ai_correct"] for r in group)
+        print(f"    {level * 100:>3.0f}% shown: followed {followed}/{len(group)}, "
+              f"AI right {ai_right}/{len(group)}")
+
 
 def main():
     with open(CASES_FILE, encoding="utf-8") as f:
